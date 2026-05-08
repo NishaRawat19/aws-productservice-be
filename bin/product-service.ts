@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib/core';
 import { ProductServiceStack } from '../lib/product-service-stack';
+import { ImportServiceStack } from '../lib/import-service-stack';
 
 const app = new cdk.App();
+
+// Product Service Stack
 new ProductServiceStack(app, 'ProductServiceStack', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
@@ -17,4 +20,10 @@ new ProductServiceStack(app, 'ProductServiceStack', {
   // env: { account: '123456789012', region: 'us-east-1' },
 
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+});
+
+// Import Service Stack
+new ImportServiceStack(app, 'ImportServiceStack', {
+  /* Import service configuration */
+  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
 });
