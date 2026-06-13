@@ -71,6 +71,14 @@ export class ImportServiceStack extends cdk.Stack {
       catalogItemsQueueArn
     );
 
+    // Import the BasicAuthorizer Function ARN from AuthorizationServiceStack
+    const basicAuthorizerArn = cdk.Fn.importValue("BasicAuthorizerFunctionArn");
+    const basicAuthorizerFn = lambda.Function.fromFunctionArn(
+      this,
+      "BasicAuthorizerFn",
+      basicAuthorizerArn
+    );
+
     // Lambda Function: importFileParser
     // Triggered by S3 ObjectCreated events in the uploaded/ folder
     const importFileParserFn = new NodejsFunction(this, "ImportFileParserFn", {
@@ -118,13 +126,26 @@ export class ImportServiceStack extends cdk.Stack {
       },
     });
 
+    // Create Lambda Token Authorizer using basicAuthorizer
+    const authorizer = new apigateway.TokenAuthorizer(this, "ImportAuthorizer", {
+      handler: basicAuthorizerFn,
+      identitySource: "method.request.header.Authorization",
+      authorizerName: "BasicAuthorizer",
+      resultsCacheTtl: cdk.Duration.seconds(0), // Disable caching for demo
+    });
+
     // /import resource
     const importResource = api.root.addResource("import");
 
     // GET /import - Generate signed URL for file upload
+    // Protected by Lambda Authorizer
     importResource.addMethod(
       "GET",
-      new apigateway.LambdaIntegration(importProductsFileFn)
+      new apigateway.LambdaIntegration(importProductsFileFn),
+      {
+        authorizer: authorizer,
+        authorizationType: apigateway.AuthorizationType.CUSTOM,
+      }
     );
 
     // CloudFormation Outputs
@@ -151,6 +172,11 @@ export class ImportServiceStack extends cdk.Stack {
     new cdk.CfnOutput(this, "ImportFileParserFunctionName", {
       value: importFileParserFn.functionName,
       description: "Lambda function name for file parsing",
+    });
+
+    new cdk.CfnOutput(this, "ImportAuthorizerEnabled", {
+      value: "true",
+      description: "Lambda authorizer is enabled on /import endpoint",
     });
   }
 }
