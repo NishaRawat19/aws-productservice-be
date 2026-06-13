@@ -2,10 +2,11 @@
 import * as cdk from 'aws-cdk-lib/core';
 import { ProductServiceStack } from '../lib/product-service-stack';
 import { ImportServiceStack } from '../lib/import-service-stack';
+import { AuthorizationServiceStack } from '../lib/authorization-service-stack';
 
 const app = new cdk.App();
 
-// Product Service Stack
+// Product Service Stack (deployed first)
 new ProductServiceStack(app, 'ProductServiceStack', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
@@ -22,7 +23,13 @@ new ProductServiceStack(app, 'ProductServiceStack', {
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
 });
 
-// Import Service Stack
+// Authorization Service Stack (deployed second - exports BasicAuthorizerFunctionArn)
+new AuthorizationServiceStack(app, 'AuthorizationServiceStack', {
+  /* Authorization service configuration */
+  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+});
+
+// Import Service Stack (deployed third - imports BasicAuthorizerFunctionArn and CatalogItemsQueueArn)
 new ImportServiceStack(app, 'ImportServiceStack', {
   /* Import service configuration */
   // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
