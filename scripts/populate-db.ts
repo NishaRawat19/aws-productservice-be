@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand, BatchWriteCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
 
 // Initialize DynamoDB client
@@ -85,11 +85,9 @@ async function populateProducts() {
           Item: product,
         })
       );
-      console.log(`✅ Added product: ${product.title} (ID: ${product.id})`);
+      console.log(` Added product: ${product.title} (ID: ${product.id})`);
     } catch (error) {
-      console.error(`
-        
-        Error adding product ${product.title}:`, error);
+      console.error(` Error adding product ${product.title}:`, error);
     }
   }
 }
@@ -111,7 +109,7 @@ async function populateStock() {
           },
         })
       );
-      console.log(`✅ Added stock for ${product.title}: ${stockCount} units`);
+      console.log(` Added stock for ${product.title}: ${stockCount} units`);
     } catch (error) {
       console.error(`Error adding stock for ${product.title}:`, error);
     }
@@ -120,7 +118,7 @@ async function populateStock() {
 
 // Main function
 async function main() {
-  console.log("🚀 Starting database population...");
+  console.log("Starting database population...");
   console.log(`Region: ${process.env.AWS_REGION || "us-east-1"}`);
   console.log(`Products Table: ${PRODUCTS_TABLE}`);
   console.log(`Stock Table: ${STOCK_TABLE}`);
@@ -129,12 +127,11 @@ async function main() {
     await populateProducts();
     await populateStock();
     
-    console.log("\n✨ Database population completed successfully!");
-    console.log(`\n📈 Summary:`);
+    console.log("Database population completed successfully!");
     console.log(`   - Products added: ${products.length}`);
     console.log(`   - Stock records added: ${products.length}`);
   } catch (error) {
-    console.error("\n❌ Error during database population:", error);
+    console.error("Error during database population:", error);
     process.exit(1);
   }
 }

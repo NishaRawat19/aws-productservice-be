@@ -63,6 +63,14 @@ export class ImportServiceStack extends cdk.Stack {
     // Grant S3 permissions to Lambda function
     importBucket.grantReadWrite(importProductsFileFn);
 
+    // Import the CatalogItemsQueue ARN from ProductServiceStack
+    const catalogItemsQueueArn = cdk.Fn.importValue("CatalogItemsQueueArn");
+    const catalogItemsQueue = sqs.Queue.fromQueueArn(
+      this,
+      "CatalogItemsQueue",
+      catalogItemsQueueArn
+    );
+
     // Lambda Function: importFileParser
     // Triggered by S3 ObjectCreated events in the uploaded/ folder
     const importFileParserFn = new NodejsFunction(this, "ImportFileParserFn", {
@@ -79,11 +87,15 @@ export class ImportServiceStack extends cdk.Stack {
       },
       environment: {
         BUCKET_NAME: importBucket.bucketName,
+        CATALOG_ITEMS_QUEUE_URL: catalogItemsQueue.queueUrl,
       },
     });
 
     // Grant S3 read permissions to importFileParser
     importBucket.grantRead(importFileParserFn);
+
+    // Grant SQS send message permissions to importFileParser
+    catalogItemsQueue.grantSendMessages(importFileParserFn);
 
     // Configure S3 event notification
     // Trigger Lambda when objects are created in the uploaded/ folder
