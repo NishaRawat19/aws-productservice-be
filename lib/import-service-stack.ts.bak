@@ -126,23 +126,6 @@ export class ImportServiceStack extends cdk.Stack {
       },
     });
 
-    // Ensure CORS headers are also returned for 4xx/5xx responses
-    // (including 401/403 from the Lambda authorizer)
-    [
-      apigateway.ResponseType.DEFAULT_4XX,
-      apigateway.ResponseType.DEFAULT_5XX,
-      apigateway.ResponseType.UNAUTHORIZED,
-      apigateway.ResponseType.ACCESS_DENIED,
-    ].forEach((type, index) => {
-      api.addGatewayResponse(`ImportServiceGatewayResponse${index}`, {
-        type,
-        responseHeaders: {
-          "Access-Control-Allow-Origin": "'*'",
-          "Access-Control-Allow-Headers": "'*'",
-        },
-      });
-    });
-
     // Create Lambda Token Authorizer using basicAuthorizer
     const authorizer = new apigateway.TokenAuthorizer(this, "ImportAuthorizer", {
       handler: basicAuthorizerFn,
