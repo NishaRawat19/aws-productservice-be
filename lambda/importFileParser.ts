@@ -1,5 +1,6 @@
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+import * as sqs from "aws-cdk-lib/aws-sqs";
 import { S3Event } from "aws-lambda";
 import csv from "csv-parser";
 import { Readable } from "stream";
