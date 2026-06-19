@@ -27,7 +27,8 @@ export class AuthorizationServiceStack extends cdk.Stack {
         // Store credentials as environment variables (for demo purposes)
         // In production, use AWS Secrets Manager or Parameter Store
         // Format: username=password (separated by =)
-        CREDENTIALS: "nisharawat.19@gmail.com=TEST_PASSWORD",
+        // Source value is read from process.env.BASIC_AUTH_CREDENTIALS at synth time
+        CREDENTIALS: process.env.BASIC_AUTH_CREDENTIALS ?? "",
       },
     });
 
